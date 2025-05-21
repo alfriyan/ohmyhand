@@ -40,10 +40,3 @@ if uploaded_file:
         st.text_area("Teks hasil OCR", value=text, height=200)
     else:
         st.warning("Tidak ada teks terdeteksi.")
-
-if __name__ == "__main__":
-    import streamlit.web.cli
-    import sys
-    port = int(os.environ.get("PORT", 8501))
-    sys.argv = ["streamlit", "run", "app.py", "--server.port", str(port)]
-    sys.exit(streamlit.web.cli.main())
