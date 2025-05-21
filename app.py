@@ -3,6 +3,7 @@ from google.cloud import vision
 import io
 import os
 import tempfile
+import google.generativeai as genai
 
 def login():
     password = st.text_input("Masukkan password:", type="password")
@@ -37,6 +38,21 @@ def detect_handwritten_text(image_bytes):
         return ""
     return response.full_text_annotation.text
 
+# Konfigurasi Gemini API key dari environment variable
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+
+def post_process_text(raw_text):
+    prompt = f"""
+Berikut adalah hasil OCR dari teks tulisan tangan:
+
+"{raw_text}"
+
+Tolong perbaiki struktur kalimat, ejaan, dan rapikan tata letak. Pisahkan antara soal, jawaban, dan penjelasan jika ada.
+"""
+    model = genai.GenerativeModel("gemini-pro")
+    response = model.generate_content(prompt)
+    return response.text.strip()
+
 st.title("OCR Tulisan Tangan dengan Google Cloud Vision API")
 
 uploaded_file = st.file_uploader("Unggah gambar tulisan tangan (png/jpg/jpeg)", type=["png", "jpg", "jpeg"])
@@ -55,6 +71,16 @@ if uploaded_file:
             file_name="hasil_ocr.txt",
             mime="text/plain"
         )
+        if st.button("✨ Perbaiki Teks dengan AI (Gemini)"):
+            with st.spinner("Memproses dengan Gemini..."):
+                improved_text = post_process_text(text)
+            st.subheader("Teks Setelah Diperbaiki:")
+            st.text_area("Teks yang sudah dirapikan", value=improved_text, height=400)
+            st.download_button(
+                label="💾 Unduh Teks Rapi",
+                data=improved_text,
+                file_name="hasil_rapi.txt",
+                mime="text/plain"
+            )
     else:
         st.warning("Tidak ada teks terdeteksi.")
-
