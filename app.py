@@ -43,7 +43,7 @@ uploaded_file = st.file_uploader("Unggah gambar tulisan tangan (png/jpg/jpeg)", 
 
 if uploaded_file:
     bytes_data = uploaded_file.read()
-    st.image(bytes_data, caption="Gambar Unggahan", use_column_width=True)
+    st.image(bytes_data, caption="Gambar Unggahan", use_container_width=True)
     with st.spinner("Memproses OCR..."):
         text = detect_handwritten_text(bytes_data)
     if text:
