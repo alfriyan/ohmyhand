@@ -5,6 +5,7 @@ import os
 import tempfile
 import google.generativeai as genai
 
+# Autentikasi login sederhana
 def login():
     password = st.text_input("Masukkan password:", type="password")
     secret_password = os.environ.get("password")
@@ -13,6 +14,7 @@ def login():
 
 login()
 
+# Tulis credential file sementara dari ENV
 def write_credential_file():
     cred_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
     if cred_json:
@@ -23,12 +25,15 @@ def write_credential_file():
 
 write_credential_file()
 
+# Inisialisasi client Vision API
 @st.cache_resource
 def get_vision_client():
     return vision.ImageAnnotatorClient()
 
+# Tampilkan path credential (debug opsional)
 st.write("Path ke credential file:", os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
 
+# Fungsi deteksi teks tulisan tangan dengan Vision API
 def detect_handwritten_text(image_bytes):
     client = get_vision_client()
     image = vision.Image(content=image_bytes)
@@ -38,49 +43,60 @@ def detect_handwritten_text(image_bytes):
         return ""
     return response.full_text_annotation.text
 
-# Konfigurasi Gemini API key dari environment variable
+# Konfigurasi Gemini AI
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 def post_process_text(raw_text):
     prompt = f"""
-Berikut adalah hasil OCR dari teks tulisan tangan:
+Kamu adalah AI yang bertugas merapikan hasil OCR tulisan tangan.
 
-"{raw_text}"
+Tolong rapikan, perjelas, dan susun ulang teks berikut dalam format yang mudah dibaca,
+dengan bahasa baku dan struktur yang baik. Jangan gunakan format markdown.
 
-Tolong perbaiki struktur kalimat, ejaan, dan rapikan tata letak. Pisahkan antara soal, jawaban, dan penjelasan jika ada.
+Teks:
+\"\"\"
+{raw_text}
+\"\"\"
 """
-    model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")
+    model = genai.GenerativeModel("gemini-pro")
     response = model.generate_content(prompt)
     return response.text.strip()
 
-st.title("OCR Tulisan Tangan dengan Google Cloud Vision API")
+# Antarmuka Streamlit
+st.title("📷 OCR Tulisan Tangan + AI Perapihan (Google Cloud + Gemini)")
 
 uploaded_file = st.file_uploader("Unggah gambar tulisan tangan (png/jpg/jpeg)", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
     bytes_data = uploaded_file.read()
-    st.image(bytes_data, caption="Gambar Unggahan", use_container_width=True)
-    with st.spinner("Memproses OCR..."):
+    st.image(bytes_data, caption="📸 Gambar Unggahan", use_container_width=True)
+
+    with st.spinner("🔍 Memproses OCR..."):
         text = detect_handwritten_text(bytes_data)
+
     if text:
-        st.subheader("Hasil OCR:")
-        st.text_area("Teks hasil OCR", value=text, height=400)
+        st.subheader("📄 Hasil OCR Mentah:")
+        st.text_area("Teks hasil OCR", value=text, height=300)
+
         st.download_button(
-            label="💾 Unduh hasil sebagai TXT",
+            label="💾 Unduh hasil OCR (txt)",
             data=text,
             file_name="hasil_ocr.txt",
             mime="text/plain"
         )
+
         if st.button("✨ Perbaiki Teks dengan AI (Gemini)"):
-            with st.spinner("Memproses dengan Gemini..."):
+            with st.spinner("⚙️ Memproses dengan Gemini..."):
                 improved_text = post_process_text(text)
-            st.subheader("Teks Setelah Diperbaiki:")
-            st.text_area("Teks yang sudah dirapikan", value=improved_text, height=400)
+
+            st.subheader("🧠 Teks Setelah Diperbaiki:")
+            st.text_area("Teks hasil AI", value=improved_text, height=400)
+
             st.download_button(
-                label="💾 Unduh Teks Rapi",
+                label="💾 Unduh hasil perbaikan",
                 data=improved_text,
                 file_name="hasil_rapi.txt",
                 mime="text/plain"
             )
     else:
-        st.warning("Tidak ada teks terdeteksi.")
+        st.warning("⚠️ Tidak ada teks terdeteksi.")
