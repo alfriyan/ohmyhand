@@ -5,8 +5,9 @@ import os
 import tempfile
 
 def login():
-    password = st.text_input("Masukkan password untuk mengakses", type="password")
-    if password != st.secrets["password"]:
+    password = st.text_input("Masukkan password:", type="password")
+    secret_password = os.environ.get("password")
+    if password != secret_password:
         st.stop()
 
 login()
