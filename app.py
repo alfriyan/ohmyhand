@@ -9,6 +9,7 @@ def write_credential_file():
     if cred_json:
         with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".json") as f:
             f.write(cred_json)
+            f.flush()
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f.name
 
 write_credential_file()
