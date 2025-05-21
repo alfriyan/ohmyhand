@@ -49,11 +49,12 @@ if uploaded_file:
     if text:
         st.subheader("Hasil OCR:")
         st.text_area("Teks hasil OCR", value=text, height=400)
+        st.download_button(
+            label="💾 Unduh hasil sebagai TXT",
+            data=text,
+            file_name="hasil_ocr.txt",
+            mime="text/plain"
+        )
     else:
         st.warning("Tidak ada teks terdeteksi.")
-st.download_button(
-    label="💾 Unduh hasil sebagai TXT",
-    data=text,
-    file_name="hasil_ocr.txt",
-    mime="text/plain"
-)
+
