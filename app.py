@@ -4,6 +4,13 @@ import io
 import os
 import tempfile
 
+def login():
+    password = st.text_input("Masukkan password untuk mengakses", type="password")
+    if password != st.secrets["password"]:
+        st.stop()
+
+login()
+
 def write_credential_file():
     cred_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
     if cred_json:
