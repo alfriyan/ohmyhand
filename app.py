@@ -18,6 +18,8 @@ write_credential_file()
 def get_vision_client():
     return vision.ImageAnnotatorClient()
 
+st.write("Path ke credential file:", os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
+
 def detect_handwritten_text(image_bytes):
     client = get_vision_client()
     image = vision.Image(content=image_bytes)
