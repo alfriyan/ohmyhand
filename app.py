@@ -50,7 +50,7 @@ Berikut adalah hasil OCR dari teks tulisan tangan:
 
 "{raw_text}"
 Kamu adalah AI yang bertugas merapikan hasil OCR tulisan tangan.
-Tolong perbaiki struktur kalimat, ejaan, dan rapikan tata letak. Pisahkan antara soal, jawaban, dan penjelasan jika ada.
+Tolong perbaiki struktur kalimat, ejaan, dan rapikan tata letak. Berikan nomor untuk tiap jawaban yang sesuai dengan ejaan berdasarkan sintaksis bahasa Indonesia yang baik dan benar.
 """
     model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")
     response = model.generate_content(prompt)
