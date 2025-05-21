@@ -1,0 +1,2 @@
+# ohmyhand
+OCR trial test
